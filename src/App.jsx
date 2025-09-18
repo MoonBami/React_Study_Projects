@@ -8,7 +8,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
-  const [cityName, setCityname] = useState('이천');
+  const [cityName, setCityname] = useState('your location');
 
   const handleSubmit = (e) => {
     e.preventDefault();
