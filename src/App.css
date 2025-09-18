@@ -1,0 +1,17 @@
+.title{
+  color : white;
+  background-color : black;
+  padding: 20px;
+  margin: 0;
+  text-align : center;
+}
+.countButton{
+  padding : 10px 20px;
+  size: 50px;
+  font-size : 20px;
+  background-color : blue;
+  color : white;
+  border : none;
+  border-radius : 5px;
+  cursor : pointer;
+}
