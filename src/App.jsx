@@ -1,109 +1,130 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import './App.css'
 
-const API_KEY = "YOUR_API_KEY"
 function App() {
-  const [inputValue, setInputValue] = useState('')
-  const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const [weatherData, setWeatherData] = useState(null);
-  const [cityName, setCityname] = useState('your location');
+  const [memoTitle, setMemoTitle] = useState('')
+  const [body, setBody] = useState('')
+  const [posts, setPosts] = useState([])
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const [showModal, setShowModal] = useState(false)
+  const [editPostId, setEditPostId] = useState(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editBody, setEditBody] = useState('')
 
-    searchRegion(inputValue)
-    setInputValue('')
-
+  const isBody = () => {
+    if (body.split(' ').join('').length == 0) {
+      console.log('내용을 입력하세요')
+    }
+    else {
+      const newPost = {
+        id: Date.now().toString(),
+        title: memoTitle,
+        body: body
+      }
+      setPosts([newPost, ...posts])
+      setMemoTitle('')
+      setBody('')
+    }
+  }
+  const openEditModal = (post) => {
+    setEditPostId(post.id)
+    setEditTitle(post.title)
+    setEditBody(post.body)
+    setShowModal(true)
   }
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude // 위도
-      const lon = position.coords.longitude // 경도
-      getWeather(lat, lon)
-    }
+  const saveEdit = () => {
+    setPosts(prevPosts =>
+      prevPosts.map(p =>
+        p.id === editPostId ? { ...p, title: editTitle, body: editBody } : p
+      )
     )
-  }, [])
-  const getWeather = async (lat, lon) => {
-    try {
-      const res = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=kr`)
-
-      setWeatherData(res.data);
-
-      setLoading(false);
-      
-
-    } catch (error) {
-      console.log(error)
-      setApiError(error.message);
-    }
+    setShowModal(false)
+    setEditPostId(null)
   }
-
-  const searchRegion = async (region) => {
-    if (!region) return
-
-    setLoading(true);
-    setApiError(null);
-
-    try {
-      const res = await axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${region}&limit=1&appid=${API_KEY}`)
-      if(res.status =="200" && res.data.length > 0)
-      {
-        setCityname(region)
-        const lat = res.data[0].lat
-        const lon = res.data[0].lon
-        getWeather(lat, lon)
-      }
-      else{
-        throw new Error("지역을 찾을 수 없습니다.")
-      }
-    } catch (error) {
-      console.log("API 호출 실패",error)
-      setApiError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
 
   return (
-    <div className="container">
-      <div className='title'>
-        <h3>날씨 측정 페이지 </h3>
+    <div className="App">
+      <div className="title">
+        <h1>메모장</h1>
       </div>
-      <form onSubmit={handleSubmit}>
-        <div className="searchRegion">
-          <div className='search'>
-            <h3>원하는 지역을 검색해 주세요 : </h3>
-            <input type="text" value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)} />
-            <button type="submit">검색</button>
+      <div className="inputBox">
+        <input
+          type="text"
+          placeholder="제목을 입력하세요"
+          value={memoTitle}
+          onChange={(e) => setMemoTitle(e.target.value)}
+        />
+        <br />
+        <textarea
+          placeholder="내용을 입력하세요"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        ></textarea>
+        <br />
+        <button onClick={
+          isBody
+        }>저장</button>
+      </div>
+      <div className="listBox"></div>
+      {posts.map((post) => (
+        <div key={post.id} className="post">
+          <h2>{post.title}</h2>
+          <p>{post.body}</p>
+          <button onClick={() => {
+            setPosts(posts.filter((p) => p.id !== post.id))
+          }}>삭제</button>
+          <button onClick={() => openEditModal(post)}>
+            수정</button>
+        </div>
+      ))}
+
+      {/* 모달 */}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>메모 수정</h2>
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+            />
+            <br />
+            <textarea
+              value={editBody}
+              onChange={(e) => setEditBody(e.target.value)}
+            ></textarea>
+            <br />
+            <button onClick={saveEdit}>저장</button>
+            <button onClick={() => setShowModal(false)}>취소</button>
           </div>
         </div>
-      </form>
-      {loading ?(
-        <div className="loading">로딩중...</div>
-      ) : apiError ? (
-        <div className="error">에러: {apiError}</div>
-      ) : (
-        weatherData &&(
-        <div className="weatherInfo">
-          <h2>{weatherData.sys.country}</h2>
-          <h3>{cityName} 날씨</h3>
-          <p>날씨 : {weatherData.weather[0].description}</p>
-          <p>현재 온도 : {weatherData.main.temp}°C</p>
-          <p>체감 온도 : {weatherData.main.feels_like}°C</p>
-          <p>최저 온도 : {weatherData.main.temp_min}°C</p>
-          <p>최고 온도 : {weatherData.main.temp_max}°C</p>
-          <p>습도: {weatherData.main.humidity}%</p>
-        </div>
-        )
       )}
+
+      {/* 모달 CSS */}
+      <style>{`
+        .modal {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          background: rgba(0,0,0,0.5);
+          display: flex; justify-content: center; align-items: center;
+        }
+        .modal-content {
+          background: white;
+          padding: 20px;
+          border-radius: 10px;
+          width: 400px;
+        }
+        input, textarea {
+          width: 100%;
+        }
+      `}</style>
     </div>
+
+
+
   )
 }
-
 
 export default App
