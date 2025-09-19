@@ -24,6 +24,8 @@ function App() {
       setPosts([newPost, ...posts])
       setMemoTitle('')
       setBody('')
+      
+      
     }
   }
   const openEditModal = (post) => {
