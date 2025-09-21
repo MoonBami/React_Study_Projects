@@ -1,131 +1,108 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import axios from 'axios'
 import './App.css'
 
 function App() {
-  const [memoTitle, setMemoTitle] = useState('')
-  const [body, setBody] = useState('')
-  const [posts, setPosts] = useState([])
+  const [cart, setCart] = useState([]) // 장바구니
+  const [result, setResult] = useState(0) // 총 합계
+  const [apiError, setApiError] = useState(null) // API 에러
+  const [productList, setProductList] = useState([]) // 상품 목록
 
-  const [showModal, setShowModal] = useState(false)
-  const [editPostId, setEditPostId] = useState(null)
-  const [editTitle, setEditTitle] = useState('')
-  const [editBody, setEditBody] = useState('')
+  useEffect(() => {
+    fetchProducts()
+  }, [])
 
-  const isBody = () => {
-    if (body.split(' ').join('').length == 0) {
-      console.log('내용을 입력하세요')
-    }
-    else {
-      const newPost = {
-        id: Date.now().toString(),
-        title: memoTitle,
-        body: body
-      }
-      setPosts([newPost, ...posts])
-      setMemoTitle('')
-      setBody('')
-      
-      
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get('https://fakestoreapi.com/products')
+      setProductList(res.data)
+    } catch (err) {
+      console.log("API 에러:", err)
+      setApiError(err)
     }
   }
-  const openEditModal = (post) => {
-    setEditPostId(post.id)
-    setEditTitle(post.title)
-    setEditBody(post.body)
-    setShowModal(true)
-  }
 
-  const saveEdit = () => {
-    setPosts(prevPosts =>
-      prevPosts.map(p =>
-        p.id === editPostId ? { ...p, title: editTitle, body: editBody } : p
-      )
-    )
-    setShowModal(false)
-    setEditPostId(null)
+  const addToCart = (product) => {
+    setCart([...cart, product])
+  }
+  const removeFromCart = (productId) => {
+    setCart(cart.filter(item => item.id !== productId))
   }
 
   return (
     <div className="App">
-      <div className="title">
-        <h1>메모장</h1>
-      </div>
-      <div className="inputBox">
-        <input
-          type="text"
-          placeholder="제목을 입력하세요"
-          value={memoTitle}
-          onChange={(e) => setMemoTitle(e.target.value)}
-        />
-        <br />
-        <textarea
-          placeholder="내용을 입력하세요"
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-        ></textarea>
-        <br />
-        <button onClick={
-          isBody
-        }>저장</button>
-      </div>
-      <div className="listBox"></div>
-      {posts.map((post) => (
-        <div key={post.id} className="post">
-          <h2>{post.title}</h2>
-          <p>{post.body}</p>
-          <button onClick={() => {
-            setPosts(posts.filter((p) => p.id !== post.id))
-          }}>삭제</button>
-          <button onClick={() => openEditModal(post)}>
-            수정</button>
-        </div>
-      ))}
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home productList={productList} addToCart={addToCart} cart={cart}/>} />
+          <Route path="/cart" element={<CartComponent cart={cart} setCart={setCart} result={result} setResult={setResult} />} />
+        </Routes>
+      </Router>
+    </div>
+  )
+}
+const Home = ({productList, addToCart,cart}) => {
+  const nav = useNavigate();
+  const gotoCart = () => {
+    // Navigate to cart page
+    nav('/cart')
+  }
 
-      {/* 모달 */}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>메모 수정</h2>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-            />
-            <br />
-            <textarea
-              value={editBody}
-              onChange={(e) => setEditBody(e.target.value)}
-            ></textarea>
-            <br />
-            <button onClick={saveEdit}>저장</button>
-            <button onClick={() => setShowModal(false)}>취소</button>
+  return (
+    <div>
+      <div className="title">
+        <h1>쇼핑몰</h1>
+        <button onClick={gotoCart}>장바구니 ({cart.length})</button>
+      </div>
+      <div className="product-list">
+        {productList.map(product => (
+          <div key={product.id} className="product-card">
+            <img src={product.image} alt={product.title} width={50} />
+            <h3 title={product.title}>{product.title}</h3>
+            <p className="price">${product.price}</p>
+            <button onClick={() => { addToCart(product) }}>담기</button>
           </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+
+const CartComponent = ({ cart, setCart ,result,setResult}) => {
+  const nav = useNavigate();
+  const gotoCart = () => {
+    // Navigate to home page
+    nav('/')
+  }
+
+  return (
+    <div className="cart">
+      <div className='title'>
+        <h1>장바구니</h1>
+        <button onClick={gotoCart}>쇼핑 계속하기</button>
+      </div>
+      {cart.length === 0 ? (
+        <div className="empty-cart">
+          <p>장바구니가 비어있습니다.</p>
+        </div>
+      ) : (
+        <div className="cart-content">
+          <div>
+            <h2>총 합계: ${cart.reduce((acc, item) => acc + item.price, 0).toFixed(2)}</h2>
+          </div>
+          {cart.map(item => (
+            <div key={item.id} className="cart-item">
+              <img src={item.image} alt={item.title} width={50} height={50} />
+              <p>{item.price} 달러</p>
+              <button onClick={() => {
+                setCart(prevCart => prevCart.filter(i => i.id !== item.id))
+              }}>삭제</button>
+            </div>
+          ))}
         </div>
       )}
-
-      {/* 모달 CSS */}
-      <style>{`
-        .modal {
-          position: fixed;
-          top: 0; left: 0;
-          width: 100%; height: 100%;
-          background: rgba(0,0,0,0.5);
-          display: flex; justify-content: center; align-items: center;
-        }
-        .modal-content {
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          width: 400px;
-        }
-        input, textarea {
-          width: 100%;
-        }
-      `}</style>
     </div>
-
-
-
   )
 }
 
