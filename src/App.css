@@ -11,87 +11,60 @@
 
 }
 
-.title button {
-  padding: 8px 12px;
-  background: #007aff;
+.input-box {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: gray;
+  margin-left: 10px;
+}
+
+.input-box input {
+  width: 300px;
+  height: 30px;
+  font-size: 16px;
+  padding: 5px;
+  margin-right: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input-box button {
+  width: 60px;
+  height: 42px;
+  font-size: 16px;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  float: right;
+  border-radius: 5px;
 }
 
-.product-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  /* 카드 여러 개 정렬 */
-  gap: 20px;
-  /* 카드 간격 */
-  padding: 20px;
+.my-message {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 10px;
 }
-
-.product-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 15px;
-  background: #fff;
-  text-align: center;
-  transition: box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  /* 세로 정렬 */
-  align-items: center;
-  /* 가로 가운데 */
-  justify-content: flex-start;
-  /* 위에서부터 배치 */
+.your-message {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 10px;
+  left: 0;
 }
-
-.product-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  /* 호버 효과 */
-}
-
-.product-card img {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  /* 이미지 비율 유지 */
-  margin-bottom: 10px;
-  text-align: center;
-  display: block;
-}
-
-.product-card h3 {
-  font-size: 16px;
-  margin: 10px 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  /* 2줄까지만 보여줌 */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 48px;
-  /* 항상 2줄 높이 확보 (16px * 2줄 + 여백) */
-  position: relative;
-}
-
-
-.product-card .price {
+.myChat{
+  background-color: blue;
+  color: white;
   font-weight: bold;
-  margin: 10px 0;
-  color: #e60023;
-  /* 빨간색 가격 */
 }
-
-.product-card button {
-  background: #007aff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.product-card button:hover {
-  background: #005bb5;
+.yourChat{
+  background-color: gray;
+  color: white;
+  font-weight: bold;
 }
