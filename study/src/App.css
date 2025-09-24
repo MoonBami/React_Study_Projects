@@ -1,0 +1,65 @@
+.title {
+  color: white;
+  background-color: black;
+  padding: 20px;
+  margin: 0;
+}
+
+.title h1 {
+  margin: 0;
+  display: inline-block;
+
+}
+
+.input-box {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timestamp {
+  font-size: 0.8em;
+  color: gray;
+  margin-left: 10px;
+}
+
+.input-box input {
+  width: 300px;
+  height: 30px;
+  font-size: 16px;
+  padding: 5px;
+  margin-right: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input-box button {
+  width: 60px;
+  height: 42px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.my-message {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 10px;
+}
+.your-message {
+  position: absolute;
+  bottom: 0;
+  padding-bottom: 10px;
+  left: 0;
+}
+.myChat{
+  background-color: blue;
+  color: white;
+  font-weight: bold;
+}
