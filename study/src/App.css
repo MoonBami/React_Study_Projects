@@ -11,11 +11,24 @@
 
 }
 
+.chat-box {
+  margin-bottom: 70px; /* input-box 높이만큼 여백 추가 */
+  overflow-y: auto;
+  max-height: calc(100vh - 140px); /* 상단 타이틀+input-box 높이만큼 제한 */
+}
+
 .input-box {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px 0;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
 }
 
 .timestamp {
@@ -33,6 +46,7 @@
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
+  position: relative;
 }
 
 .input-box button {

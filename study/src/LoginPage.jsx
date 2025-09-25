@@ -1,29 +1,67 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {io} from 'socket.io-client'
-
-const socket = io("http://localhost:4000"); // 서버 주소  
+import axios from "axios";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
+  const [mode, setMode] = useState("login"); // login 또는 register
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username.trim() === "") return alert("닉네임을 입력하세요!");
-    // 로그인 성공했다고 가정 → 채팅 페이지로 이동하면서 이름 넘김
-    navigate("/chat", { state: { username } });
+  const API_URL = "http://localhost:4000/auth";
+
+  const handleLogin = async () => {
+    if (!username) return alert("아이디를 입력하세요!");
+    try {
+      const res = await axios.post(`${API_URL}/login`, { username }); // 
+      alert("로그인 성공!");
+      navigate("/chat", { state: { username } });
+    } catch (err) {
+      alert(err.response?.data?.message || "로그인 요청 실패");
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!username) return alert("아이디를 입력하세요!");
+    try {
+      const res = await axios.post(`${API_URL}/register`, { username });
+      alert("회원가입 성공! 로그인 해주세요.");
+      setMode("login");
+    } catch (err) {
+      alert(err.response?.data?.message || "회원가입 요청 실패");
+    }
   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>로그인</h2>
+      <h2>{mode === "login" ? "로그인" : "회원가입"}</h2>
+
       <input
         type="text"
-        placeholder="닉네임 입력"
+        placeholder="아이디 입력"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        style={{ display: "block", margin: "10px auto" }}
       />
-      <button onClick={handleLogin}>입장하기</button>
+
+      {mode === "login" ? (
+        <button onClick={handleLogin}>로그인</button>
+      ) : (
+        <button onClick={handleRegister}>회원가입</button>
+      )}
+
+      <div style={{ marginTop: "20px" }}>
+        {mode === "login" ? (
+          <p>
+            계정이 없으신가요?{" "}
+            <button onClick={() => setMode("register")}>회원가입</button>
+          </p>
+        ) : (
+          <p>
+            이미 계정이 있으신가요?{" "}
+            <button onClick={() => setMode("login")}>로그인</button>
+          </p>
+        )}
+      </div>
     </div>
   );
 }

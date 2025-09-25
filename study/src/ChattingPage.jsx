@@ -10,11 +10,12 @@ function ChattingPage() {
     // 채팅앱 구현
     const { state } = useLocation(); // 이전 페이지에서 전달된 상태(state) 가져오기
     const username = state.username;
-
+    const [userInfo, setUserInfo] = useState(null);
     const [message, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const inputRef = useRef(null);
-    const [myId, setMyId] = useState("");
+
+    const scrollDownRef = useRef();
 
     useEffect(() => {
         if (inputRef.current) {
@@ -23,25 +24,28 @@ function ChattingPage() {
     }, [])
 
     useEffect(() => {
-        console.log("username:", username);
-        socket.emit("chatHistory",null); // 채팅 기록 요청
-        console.log("채팅 기록 요청 보냄");
+        const fetchUserInfo = async () => {
+            try {
+                const res = await axios.get(`http://localhost:4000/auth/${username}`);
+                setUserInfo(res.data);
+            } catch (err) {
+                console.error(err);
+                alert("내 정보 요청 실패");
+            }
+        };
+        fetchUserInfo();
+    },[username]);
 
-        socket.emit("login",username);
+    useEffect(() => {
+        socket.emit("chatHistory",null); // 채팅 기록 요청
 
         socket.on("History", (chatHistory) => { // 서버로부터 채팅 기록을 받았을 때
             setMessages(chatHistory);
-            console.log("채팅 기록 받음");
         });
 
     },[])
 
     useEffect(() => {
-        socket.on("connect", () => { // 서버에 접속했을 때
-            setMyId(socket.id); // 내 소켓 id 저장
-        })
-
-
         socket.on("message", (data) => { // 서버로부터 메시지를 받았을 때
             setMessages((prevMessages) => [...prevMessages, data]);
         });
@@ -53,18 +57,27 @@ function ChattingPage() {
     const sendMessage = () => { // 메시지 전송 함수
 
         if (input.trim()) {
-            socket.emit("message", { text: input, id: myId,name:username }); // 서버로 메시지 전송
+            socket.emit("message", { text: input}); // 서버로 메시지 전송
             setInput("");
         }
 
     }
+    useEffect(() => {
+        scrollToBottom();
+    }, [message]);
+
+    const scrollToBottom = () => {
+        if (scrollDownRef.current) {
+            scrollDownRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    };
 
     useEffect(() => {
-        if (myId) {
-            console.log("업데이트된 myId:", myId);
+        if (userInfo) {
+            socket.emit("login", userInfo.username, userInfo.uid);
+            console.log("당신의 정보 : ",userInfo);
         }
-    }, [myId]);
-
+    },[userInfo]);
 
     return (
         <div className="App">
@@ -77,8 +90,8 @@ function ChattingPage() {
                         <div
                             key={index}
                             style={{
-                                textAlign: msg.id === myId ? "right" : "left",
-                                backgroundColor: msg.id === myId ? "#DCF8C6" : "#f8c6c9ff",
+                                textAlign: msg.id === userInfo.uid ? "right" : "left",
+                                backgroundColor: msg.id === userInfo.uid ? "#DCF8C6" : "#f8c6c9ff",
                                 margin: "5px",
                                 padding: "5px",
                                 borderRadius: "5px",
@@ -90,6 +103,7 @@ function ChattingPage() {
                         </div>
                     </div>
                 ))}
+                <div ref={scrollDownRef} />
             </div>
             <div className='input-box'>
                 <footer className='my-message'>
