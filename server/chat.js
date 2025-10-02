@@ -48,6 +48,7 @@ module.exports = (io) => {
             }
 
             socket.join(roomId);
+            socket.emit("getRoomId",roomId)
             socket.emit("roomHistory", { roomId, chatHistory: rooms[roomId].chatHistory });
         });
 
