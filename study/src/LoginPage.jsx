@@ -12,9 +12,9 @@ function LoginPage() {
   const handleLogin = async () => {
     if (!username) return alert("아이디를 입력하세요!");
     try {
-      const res = await axios.post(`${API_URL}/login`, { username }); // 
+      const res = await axios.post(`${API_URL}/login`, { username });
       alert("로그인 성공!");
-      navigate("/chat", { state: { username } });
+      navigate("/chat", { state: {username: res.data.username,uid:res.data.uid } });
     } catch (err) {
       alert(err.response?.data?.message || "로그인 요청 실패");
     }

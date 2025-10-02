@@ -29,12 +29,18 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   const { username } = req.body;
 
+  const user = users.find(u => u.username === username);
+
   if (!username || !users.find(u => u.username === username)) {
     return res.status(400).json({ message: "존재하지 않는 아이디입니다." });
   }
 
   console.log("로그인 성공:", username);
-  res.json({ message: "로그인 성공" });
+  res.json({ 
+    message: "로그인 성공",
+    username : user.username,
+    uid: user.uid
+  });
 });
 
 // 자신의 정보 확인용 라우터 (테스트 목적)
